@@ -1,4 +1,4 @@
-# 🌿 TIMM 転移学習 画像分類ツール
+# 🌿 TIMM 転移学習 画像分類ツール for 植物学会
 
 [TIMM (PyTorch Image Models)](https://github.com/huggingface/pytorch-image-models) の事前学習済みモデルを使い、**少数の画像（各クラス30〜100枚程度）から転移学習で画像分類モデルを構築できる** Gradio UI アプリです。
 
