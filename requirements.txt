@@ -1,0 +1,14 @@
+# PyTorch (CUDA版は環境に応じて https://pytorch.org/get-started/ を参照)
+torch==2.13.0
+torchvision==0.28.0
+
+# モデル・UI
+timm==1.0.29
+gradio==6.26.0
+
+# データ処理・可視化
+numpy==2.2.6
+pandas==2.3.3
+pillow==12.3.0
+scikit-learn==1.7.2
+matplotlib==3.10.9
