@@ -1,4 +1,4 @@
-# 🌿 TIMM 転移学習 画像分類ツール for 植物学会
+# 🌿 TIMM 転移学習 画像分類ツール
 
 [TIMM (PyTorch Image Models)](https://github.com/huggingface/pytorch-image-models) の事前学習済みモデルを使い、**少数の画像（各クラス30〜100枚程度）から転移学習で画像分類モデルを構築できる** Gradio UI アプリです。
 
@@ -22,7 +22,9 @@
 ## 📋 動作環境
 
 - Python 3.10 以上
-- NVIDIA GPU + CUDA を推奨（CPUでも動作しますが学習は低速です）
+- GPUを自動選択します: NVIDIA GPU (CUDA) → Apple Silicon GPU (MPS) → CPU
+  - **Mac (Apple Silicon)** でもそのまま動作します。`pip install -r requirements.txt` だけでMPS対応のPyTorchが入ります
+  - CPUのみでも動作しますが学習は低速です
 - 動作確認環境: RTX 3090 / CUDA 13.2 / torch 2.13.0
 
 ## 🚀 セットアップ
@@ -77,6 +79,24 @@ images/demo_leaves/train/     ← ここを指定
 ### 参考: デモでの性能
 
 ConvNeXt-Tiny・各クラス80枚・3エポック（RTX 3090で約1分）で検証精度100%、テスト画像も全問正解でした。
+
+## 🍎 Macでのトラブルシューティング
+
+実機（Apple Silicon MacBook 2台）で確認したハマりどころです。
+
+**`No matching distribution found for torch==X.X.X`**
+→ requirements.txt は範囲指定（`torch>=2.4` など）にしてあるので最新版なら発生しませんが、出た場合はPythonが3.10未満の可能性があります。Python 3.10以上を入れてvenvを作り直してください。
+
+**`ModuleNotFoundError: No module named '_lzma'`**（pyenv利用時）
+→ Pythonビルド時に `xz` が無かったのが原因です。以下で再ビルドしてください：
+
+```bash
+brew install xz
+pyenv uninstall -f 3.12.11   # 自分のバージョンに読み替え
+pyenv install 3.12.11
+```
+
+※ pyenvの `(y/N)` プロンプトに**全角の「ｙ」**で答えるとNo扱いになります。`-f` オプションでプロンプトを回避するのが確実です。
 
 ## 📂 ファイル構成
 

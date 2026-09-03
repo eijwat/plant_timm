@@ -1,14 +1,16 @@
-# PyTorch (CUDA版は環境に応じて https://pytorch.org/get-started/ を参照)
-torch==2.13.0
-torchvision==0.28.0
+# 環境(OS/Python)に合わせて最適なバージョンが選ばれるよう範囲指定にしています
+# - Linux + NVIDIA GPU: CUDA版torchが自動で入ります
+# - Mac (Apple Silicon): MPS対応torchが自動で入ります
+torch>=2.4
+torchvision>=0.19
 
 # モデル・UI
-timm==1.0.29
-gradio==6.26.0
+timm>=1.0.19
+gradio>=5.0
 
 # データ処理・可視化
-numpy==2.2.6
-pandas==2.3.3
-pillow==12.3.0
-scikit-learn==1.7.2
-matplotlib==3.10.9
+numpy
+pandas
+pillow
+scikit-learn
+matplotlib

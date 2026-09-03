@@ -38,7 +38,13 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 SAVED_MODELS_DIR.mkdir(exist_ok=True)
 RESULTS_DIR.mkdir(exist_ok=True)
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# デバイス自動選択: NVIDIA GPU → Apple Silicon GPU (MPS) → CPU
+if torch.cuda.is_available():
+    DEVICE = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    DEVICE = torch.device("mps")
+else:
+    DEVICE = torch.device("cpu")
 
 # 使用できるTIMMモデル (表示名: timmモデル名)
 MODEL_CHOICES = {
@@ -170,11 +176,11 @@ def train_model(
     val_ds = ImageListDataset(val_samples, val_tf)
     train_dl = DataLoader(
         train_ds, batch_size=int(batch_size), shuffle=True,
-        num_workers=4, pin_memory=True,
+        num_workers=4, pin_memory=(DEVICE.type == "cuda"),
     )
     val_dl = DataLoader(
         val_ds, batch_size=int(batch_size), shuffle=False,
-        num_workers=4, pin_memory=True,
+        num_workers=4, pin_memory=(DEVICE.type == "cuda"),
     )
 
     # --- 最適化: バックボーンは低学習率、分類ヘッドは高学習率 ---
