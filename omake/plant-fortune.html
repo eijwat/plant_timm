@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>草花占い</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F0E4;
+    --bg-deep:#E7E4D2;
+    --ink:#25341F;
+    --ink-soft:#5B6650;
+    --card:#FBFAF3;
+    --line:#DAD5BE;
+    --moss:#6E7F52;
+    --gold:#B4872C;
+    --gold-soft:#E7D9AE;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 0%, var(--bg-deep) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 100% 100%, var(--bg-deep) 0%, transparent 55%),
+      var(--bg);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:40px 16px 64px;
+  }
+  .page{
+    width:100%;
+    max-width:480px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .eyebrow-mark{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:var(--moss);
+    font-size:13px;
+    letter-spacing:.08em;
+    margin-bottom:10px;
+  }
+  .eyebrow-mark svg{width:16px;height:16px;}
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size:32px;
+    margin:0 0 10px;
+    color:var(--ink);
+    letter-spacing:.04em;
+  }
+  header p{
+    margin:0;
+    font-size:14px;
+    line-height:1.9;
+    color:var(--ink-soft);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:28px 24px;
+    box-shadow:0 1px 0 rgba(37,52,31,.04);
+  }
+
+  .form-row{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  label{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .input-wrap{
+    display:flex;
+    gap:10px;
+  }
+  input[type="text"]{
+    flex:1;
+    min-width:0;
+    font-family:inherit;
+    font-size:16px;
+    padding:13px 14px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  input[type="text"]:focus{
+    border-color:var(--moss);
+  }
+  button{
+    font-family:'Shippori Mincho', serif;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.06em;
+    padding:13px 20px;
+    border:none;
+    border-radius:10px;
+    background:var(--ink);
+    color:#F5F3E8;
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  button:hover{background:#33472B;}
+  button:active{transform:scale(.97);}
+  .hint{
+    font-size:12px;
+    color:#8B8672;
+    min-height:16px;
+    margin-top:2px;
+  }
+
+  /* --- result --- */
+  #result{
+    margin-top:24px;
+    display:none;
+  }
+  #result.show{display:block;}
+
+  .stage{
+    position:relative;
+    background:linear-gradient(180deg, #EFEDDF 0%, #F6F4E9 55%, #EFEADA 100%);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .stage svg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+
+  .plant-name{
+    text-align:center;
+    margin:0 0 4px;
+  }
+  .plant-name .jp{
+    font-family:'Shippori Mincho', serif;
+    font-size:26px;
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:.03em;
+  }
+  .plant-name .reading{
+    display:block;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+    letter-spacing:.1em;
+  }
+
+  .level-badge{
+    display:flex;
+    justify-content:center;
+    margin:14px 0 18px;
+  }
+  .level-badge span{
+    font-family:'Shippori Mincho', serif;
+    font-size:14px;
+    font-weight:700;
+    color:var(--gold);
+    border:1px solid var(--gold-soft);
+    background:#FBF6E9;
+    padding:6px 18px;
+    border-radius:999px;
+    letter-spacing:.15em;
+  }
+
+  .keyword{
+    text-align:center;
+    font-size:13px;
+    color:var(--moss);
+    margin-bottom:18px;
+  }
+
+  .overall{
+    font-size:14.5px;
+    line-height:2;
+    color:var(--ink);
+    padding-bottom:18px;
+    margin-bottom:18px;
+    border-bottom:1px solid var(--line);
+  }
+
+  .subrow{
+    display:grid;
+    grid-template-columns:76px 1fr;
+    gap:4px 14px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    align-items:start;
+  }
+  .subrow:last-of-type{border-bottom:none;}
+  .subrow .label{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    padding-top:1px;
+  }
+  .subrow .label b{
+    display:block;
+    font-family:'Shippori Mincho', serif;
+    font-size:14px;
+    color:var(--ink);
+    font-weight:700;
+    margin-bottom:2px;
+  }
+  .subrow p{
+    margin:0;
+    font-size:13.5px;
+    line-height:1.85;
+    color:var(--ink);
+  }
+
+  .lucky-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+  }
+  .swatch{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:1px solid rgba(37,52,31,.12);
+    flex-shrink:0;
+  }
+  .lucky-row .txt{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .lucky-row .txt b{
+    display:block;
+    font-size:14px;
+    color:var(--ink);
+    font-family:'Shippori Mincho', serif;
+  }
+
+  .again{
+    display:block;
+    width:100%;
+    margin-top:20px;
+    background:transparent;
+    color:var(--moss);
+    border:1px solid var(--line);
+  }
+  .again:hover{background:#EFEBDB;}
+
+  footer{
+    text-align:center;
+    margin-top:26px;
+    font-size:11.5px;
+    color:#9A947D;
+    line-height:1.8;
+  }
+
+  /* --- flashier motion --- */
+  @keyframes stageIn{
+    0%{ opacity:0; transform:scale(.88); }
+    60%{ opacity:1; transform:scale(1.03); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  .stage.reveal{ animation:stageIn .6s cubic-bezier(.24,.98,.34,1.15) both; }
+
+  @keyframes sway{
+    0%,100%{ transform:rotate(-1.6deg); }
+    50%{ transform:rotate(1.8deg); }
+  }
+  .plant-sway{ animation:sway 3.2s ease-in-out infinite; }
+
+  @keyframes bloomPulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.05); }
+  }
+  .flower-pulse{ animation:bloomPulse 2.6s ease-in-out infinite; transform-origin:0px 0px; }
+
+  @keyframes twinkle{
+    0%,100%{ opacity:.35; transform:scale(.7) rotate(0deg); }
+    50%{ opacity:1; transform:scale(1.2) rotate(35deg); }
+  }
+  .sparkle{ animation:twinkle 1.6s ease-in-out infinite; transform-origin:center; }
+
+  @keyframes flashBurst{
+    0%{ transform:scale(.15); opacity:.6; }
+    100%{ transform:scale(2.4); opacity:0; }
+  }
+  .flash-burst{
+    animation:flashBurst 1.3s cubic-bezier(.2,.7,.3,1) .9s both;
+    transform-origin:center;
+  }
+
+  @keyframes petalDrift{
+    0%{ transform:translateY(-10px) rotate(0deg); opacity:0; }
+    12%{ opacity:.9; }
+    100%{ transform:translateY(280px) rotate(300deg); opacity:0; }
+  }
+  .confetti{
+    position:absolute;
+    top:0;
+    width:10px;
+    height:10px;
+    border-radius:50% 0 50% 50%;
+    pointer-events:none;
+    animation-name:petalDrift;
+    animation-timing-function:ease-in;
+    animation-iteration-count:infinite;
+  }
+
+  .btn-pop{ animation:btnPop .35s cubic-bezier(.34,1.7,.5,1); }
+  @keyframes btnPop{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(.9); }
+    100%{ transform:scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    * { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow-mark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 21c0-6 4-9 8-10-1 6-4 9-8 10z" fill="#8FA56C"/><path d="M12 21c0-7-4-11-9-12 1 7 4 11 9 12z" fill="#6E7F52"/></svg>
+      草花占い
+    </div>
+    <h1>あなたに似た花を、探します</h1>
+    <p>名前を入れると、その響きから一輪の植物を呼び起こし<br>今日の運勢を占います。</p>
+  </header>
+
+  <div class="card">
+    <div class="form-row">
+      <label for="nameInput">お名前、またはニックネーム</label>
+      <div class="input-wrap">
+        <input type="text" id="nameInput" placeholder="例：さくら" maxlength="20" autocomplete="off">
+        <button id="drawBtn">占う</button>
+      </div>
+      <div class="hint" id="hintText"></div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="card">
+      <div class="stage" id="stage"></div>
+
+      <div class="plant-name">
+        <span class="jp" id="plantName"></span>
+        <span class="reading" id="plantReading"></span>
+      </div>
+      <div class="level-badge"><span id="levelLabel"></span></div>
+      <div class="keyword" id="plantKeyword"></div>
+
+      <p class="overall" id="overallText"></p>
+
+      <div class="subrow">
+        <div class="label"><b>恋愛運</b></div>
+        <p id="loveText"></p>
+      </div>
+      <div class="subrow">
+        <div class="label"><b>仕事運</b></div>
+        <p id="workText"></p>
+      </div>
+      <div class="subrow">
+        <div class="label"><b>金運</b></div>
+        <p id="moneyText"></p>
+      </div>
+
+      <div class="lucky-row">
+        <div class="swatch" id="luckySwatch"></div>
+        <div class="txt">
+          <span>ラッキーカラー</span>
+          <b id="luckyColorName"></b>
+        </div>
+      </div>
+
+      <button class="again" id="againBtn">別の名前で占う</button>
+    </div>
+  </div>
+
+  <footer>あなたに似た植物は名前の響きから、運勢は占うたびに新しく導かれます。<br>気分転換に、何度でもどうぞ。</footer>
+</div>
+
+<script>
+/* ---------------- data ---------------- */
+
+const PLANTS = [
+  { name:"ひまわり", reading:"サンフラワー", keyword:"太陽に向かうまっすぐな明るさ",
+    poem:"どんな時も顔を上げ、光のある方へ迷わず進んでいく人。",
+    stem:"#4C7A3D", leaf:"#5B8C46", flower:"#F4B93B", flower2:"#7B4B24",
+    shape:"daisy", petals:12, height:1.05, luckyName:"山吹色", luckyHex:"#E8A33D" },
+
+  { name:"バラ", reading:"ローズ", keyword:"芯にある情熱と気品",
+    poem:"やわらかな物腰の奥に、譲れない強い意志を持っている人。",
+    stem:"#3F6B3E", leaf:"#4C7A46", flower:"#C4384A", flower2:"#8C2233",
+    shape:"round", height:0.95, luckyName:"深紅", luckyHex:"#A9273A" },
+
+  { name:"すずらん", reading:"リリー・オブ・ザ・バレー", keyword:"控えめな優しさ",
+    poem:"目立つことは好まないけれど、そばにいる人をそっと支える人。",
+    stem:"#4F7A4E", leaf:"#5C8B57", flower:"#FFFFFF", flower2:"#EDE7D2",
+    shape:"bell", height:0.6, luckyName:"純白", luckyHex:"#F5F3EA" },
+
+  { name:"たんぽぽ", reading:"ダンデライオン", keyword:"しなやかな強さ",
+    poem:"踏まれても風に飛ばされても、どこでも根を張って咲き直せる人。",
+    stem:"#5C8A4A", leaf:"#6B9A57", flower:"#F6C445", flower2:"#B98A1E",
+    shape:"daisy", petals:16, height:0.5, luckyName:"菜の花色", luckyHex:"#F0C954" },
+
+  { name:"あじさい", reading:"ハイドランジア", keyword:"移ろいゆく心の豊かさ",
+    poem:"日によって見せる顔が変わる、繊細で奥行きのある感受性の持ち主。",
+    stem:"#4A7057", leaf:"#567D5F", flower:"#8B93C9", flower2:"#5F6BA8",
+    shape:"round", height:0.85, luckyName:"藤色", luckyHex:"#9490C4" },
+
+  { name:"さくら", reading:"チェリーブロッサム", keyword:"儚くも鮮やかな一瞬",
+    poem:"限られた時間だからこそ、今この瞬間を大切に生きられる人。",
+    stem:"#6B5844", leaf:"#6E8B52", flower:"#F2AEBB", flower2:"#D9788D",
+    shape:"star", points:5, height:1.0, luckyName:"桜色", luckyHex:"#F6C9D3" },
+
+  { name:"ラベンダー", reading:"ラベンダー", keyword:"静かな癒やしの力",
+    poem:"側にいるだけで場の空気をやわらげる、穏やかな包容力がある人。",
+    stem:"#5A6B4A", leaf:"#66794F", flower:"#8E7CC3", flower2:"#6E5AA0",
+    shape:"spike", height:1.1, luckyName:"藤紫", luckyHex:"#8874BF" },
+
+  { name:"椿", reading:"ツバキ", keyword:"芯の通った美しさ",
+    poem:"華やかでありながら、内側にはっきりとした軸を持っている人。",
+    stem:"#375A3A", leaf:"#3F6B41", flower:"#C13B45", flower2:"#8C232C",
+    shape:"round", height:0.75, luckyName:"椿色", luckyHex:"#B8323D" },
+
+  { name:"コスモス", reading:"コスモス", keyword:"秋風に揺れる素直さ",
+    poem:"揺れながらも折れない、正直でまっすぐな心を持つ人。",
+    stem:"#5A8452", leaf:"#6B9A5D", flower:"#E888A0", flower2:"#C15C78",
+    shape:"daisy", petals:10, height:1.15, luckyName:"秋桜色", luckyHex:"#E79EB2" },
+
+  { name:"蘭", reading:"オーキッド", keyword:"気高く洗練された魅力",
+    poem:"自分の価値観を静かに貫く、独自の世界観を持っている人。",
+    stem:"#4B6B4E", leaf:"#55794F", flower:"#B98CC4", flower2:"#7C4B8C",
+    shape:"star", points:6, height:0.9, luckyName:"古代紫", luckyHex:"#A87CC0" },
+
+  { name:"多肉植物", reading:"タニクショクブツ", keyword:"マイペースな生命力",
+    poem:"周りに振り回されず、自分のリズムをじっくり育てられる人。",
+    stem:"#6B8A5A", leaf:"#7FA968", flower:"#E7A9C9", flower2:"#C77FA6",
+    shape:"star", points:5, height:0.35, luckyName:"若草色", luckyHex:"#8FBF6B" },
+
+  { name:"竹", reading:"タケ", keyword:"しなやかでまっすぐな志",
+    poem:"外の力に合わせて曲がりながらも、決して折れずに伸び続ける人。",
+    stem:"#3E7A47", leaf:"#5FA46A", flower:"#CBE0A8", flower2:"#7FAE5E",
+    shape:"spike", segColor:"#2E5C33", height:1.3, luckyName:"若竹色", luckyHex:"#6FAE5E" },
+
+  { name:"苔", reading:"コケ", keyword:"静かに広がる包容力",
+    poem:"派手さはないけれど、気づけば周りをやわらかく満たしている人。",
+    stem:"#5C7A4A", leaf:"#6B8F52", flower:"#8FA568", flower2:"#5E7A40",
+    shape:"round", height:0.25, luckyName:"苔色", luckyHex:"#7A8F5C" },
+
+  { name:"かすみ草", reading:"カスミソウ", keyword:"さりげない気配り上手",
+    poem:"自分は控えめでも、周りを引き立てるのが自然とうまい人。",
+    stem:"#6B8A5E", leaf:"#7A9A6B", flower:"#FBFAF1", flower2:"#E6E2CC",
+    shape:"round", height:0.7, luckyName:"生成り色", luckyHex:"#F2EEDD" },
+
+  { name:"睡蓮", reading:"スイレン", keyword:"静けさの中の芯の強さ",
+    poem:"表面は穏やかでも、水面下でしっかりと根を張っている人。",
+    stem:"#4A6B5A", leaf:"#4E7A5E", flower:"#F3D9E0", flower2:"#D9A7B8",
+    shape:"star", points:8, height:0.55, luckyName:"白藤色", luckyHex:"#EADCEA" },
+
+  { name:"松", reading:"マツ", keyword:"揺るがない忍耐力",
+    poem:"季節が移ろっても変わらない、静かで確かな強さを持つ人。",
+    stem:"#33502E", leaf:"#2E5C33", flower:"#3E6B3F", flower2:"#254A2A",
+    shape:"spike", segColor:"#25452A", height:1.25, luckyName:"常磐色", luckyHex:"#2F5D3A" },
+];
+
+const LEVELS = [
+  { label:"大吉", stage:5,
+    advice:(n)=>`${n}のように、あなたは今まさに大きく花開くタイミング。思い切って一歩踏み出してみて。` },
+  { label:"吉", stage:4,
+    advice:(n)=>`${n}が蕾をほころばせるように、物事が少しずつ良い方向へ動き出しそうな気配。` },
+  { label:"中吉", stage:3,
+    advice:(n)=>`${n}が根を張り葉を茂らせるように、今は基礎を固める時期。焦らずじっくり育てて。` },
+  { label:"小吉", stage:2,
+    advice:(n)=>`${n}が小さな芽を出したように、新しい可能性がそっと顔をのぞかせています。` },
+  { label:"末吉", stage:1,
+    advice:(n)=>`${n}が土の中でじっと力を蓄えるように、今はエネルギーを溜める大切な時間。` },
+];
+
+const LOVE = [
+  "気になる相手との距離がぐっと縮まりそう。素直な気持ちを伝えてみて。",
+  "自然体でいることが魅力に繋がる時期。無理に飾らなくて大丈夫。",
+  "焦らずじっくり関係を育てるのが吉。返事を急がなくていい。",
+  "小さな出会いやきっかけを大切に。ふとした会話が縁になりそう。",
+  "まずは自分自身と向き合う時間を。それが後の良い縁につながる。",
+];
+const WORK = [
+  "アイデアが評価され、新しいチャンスが舞い込みそう。",
+  "コツコツ積み重ねてきたことが、少しずつ実を結び始める頃。",
+  "周囲との連携がうまくいく、協力の時期。頼ることも力になる。",
+  "地道な作業が力になる、準備の時期。焦らず土台を固めて。",
+  "無理せずペースを保つことが、後の飛躍につながっていく。",
+];
+const MONEY = [
+  "思わぬ臨時収入や、嬉しい出費のチャンスがありそう。",
+  "計画的な使い方が、後の余裕につながっていく時期。",
+  "堅実な管理を心がけると、着実に安定していきそう。",
+  "小さな出費に気を配ると、心にもゆとりが生まれそう。",
+  "焦らず、じっくり蓄えることを楽しんでいい時期。",
+];
+
+/* ---------------- hashing ---------------- */
+
+function hashStr(str){
+  let h = 0;
+  for (let i = 0; i < str.length; i++){
+    h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return h;
+}
+
+function pick(name, salt, mod){
+  return hashStr(name + salt) % mod;
+}
+
+function randInt(mod){
+  return Math.floor(Math.random() * mod);
+}
+
+/* ---------------- svg plant rendering ---------------- */
+
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function buildStageFactor(stage){
+  return [0.28, 0.48, 0.68, 0.86, 1][stage - 1];
+}
+
+function popIn(node, delaySeconds, extraTransform){
+  const base = extraTransform ? extraTransform + " " : "";
+  node.classList.add("pop-el");
+  node.style.opacity = 0;
+  node.style.transformBox = "fill-box";
+  node.style.transformOrigin = "center";
+  node.style.transform = base + "scale(0)";
+  node.dataset.final = base + "scale(1)";
+  const d = delaySeconds.toFixed(3);
+  node.style.transition =
+    `opacity .38s ease ${d}s, transform .55s cubic-bezier(.34,1.7,.4,1) ${d}s`;
+}
+
+function drawPlant(container, plant, stage){
+  container.innerHTML = "";
+  const W = 300, H = 300;
+  const svg = el("svg", { viewBox:`0 0 ${W} ${H}`, xmlns:NS });
+
+  // soil / pot
+  const potTopY = 250;
+  svg.appendChild(el("ellipse", { cx:W/2, cy:potTopY+4, rx:64, ry:9, fill:"#00000012" }));
+  const pot = el("path", {
+    d:`M ${W/2-58} ${potTopY} L ${W/2-46} ${potTopY+40} L ${W/2+46} ${potTopY+40} L ${W/2+58} ${potTopY} Z`,
+    fill:"#C79A6B"
+  });
+  svg.appendChild(pot);
+  svg.appendChild(el("path", {
+    d:`M ${W/2-60} ${potTopY-6} L ${W/2+60} ${potTopY-6} L ${W/2+56} ${potTopY+6} L ${W/2-56} ${potTopY+6} Z`,
+    fill:"#D8AE7C"
+  }));
+  svg.appendChild(el("ellipse", { cx:W/2, cy:potTopY-6, rx:60, ry:7, fill:"#8F6A46" }));
+
+  const sf = buildStageFactor(stage);
+  const maxH = 175 * (plant.height || 1);
+  const stemH = Math.max(18, maxH * sf);
+  const baseX = W/2, baseY = potTopY - 6;
+  const tipX = baseX + (hashStr(plant.name) % 20 - 10) * 0.4;
+  const tipY = baseY - stemH;
+  const ctrlX = baseX + (tipX - baseX) * 0.5 + 14;
+  const ctrlY = baseY - stemH * 0.55;
+
+  // whole-plant group: gets a gentle continuous sway once it has grown in
+  const plantWhole = el("g", {});
+  plantWhole.style.transformOrigin = `${baseX}px ${baseY}px`;
+  svg.appendChild(plantWhole);
+
+  const stemPath = `M ${baseX} ${baseY} Q ${ctrlX} ${ctrlY} ${tipX} ${tipY}`;
+  const stem = el("path", {
+    d: stemPath, fill:"none", stroke: plant.stem, "stroke-width":5,
+    "stroke-linecap":"round"
+  });
+  const stemLen = stemH * 1.2;
+  stem.style.strokeDasharray = stemLen;
+  stem.style.strokeDashoffset = stemLen;
+  stem.style.transition = "stroke-dashoffset 1s cubic-bezier(.22,.85,.25,1)";
+  plantWhole.appendChild(stem);
+
+  // leaves along stem — pop in with a bouncy overshoot, rotation preserved
+  const leafCount = stage + 1;
+  const leafGroup = el("g", {});
+  for (let i=0; i<leafCount; i++){
+    const t = (i+1) / (leafCount+1);
+    const lx = baseX + (tipX-baseX)*t + (ctrlX-baseX)*(1-t)*0.3;
+    const ly = baseY - stemH*t;
+    const side = i % 2 === 0 ? 1 : -1;
+    const leaf = el("ellipse", {
+      cx: lx + side*16, cy: ly, rx: 15, ry: 7,
+      fill: plant.leaf
+    });
+    popIn(leaf, 0.25 + i*0.12, `rotate(${side*-34}deg)`);
+    leafGroup.appendChild(leaf);
+  }
+  plantWhole.appendChild(leafGroup);
+
+  // soft light burst behind the bloom
+  const burst = el("circle", {
+    cx:tipX, cy:tipY, r: 34 * sf + 6, fill:`url(#glow-${stage})`
+  });
+  const grad = el("radialGradient", { id:`glow-${stage}`, cx:"50%", cy:"50%", r:"50%" });
+  grad.appendChild(el("stop", { offset:"0%", "stop-color": plant.flower, "stop-opacity":"0.55" }));
+  grad.appendChild(el("stop", { offset:"100%", "stop-color": plant.flower, "stop-opacity":"0" }));
+  const defs = el("defs", {});
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+  burst.classList.add("flash-burst");
+  plantWhole.appendChild(burst);
+
+  // flower — static anchor (position) wrapping an animated inner group
+  const flowerAnchor = el("g", { transform:`translate(${tipX} ${tipY})` });
+  const flowerGroup = el("g", { class:"flower-pulse" });
+  flowerGroup.style.opacity = 0;
+  flowerGroup.style.transformOrigin = "0px 0px";
+  flowerGroup.style.transform = "scale(.25) rotate(-18deg)";
+  flowerGroup.style.transition = "opacity .5s ease .82s, transform .65s cubic-bezier(.28,1.7,.4,1) .82s";
+  buildFlower(flowerGroup, plant, sf);
+  flowerAnchor.appendChild(flowerGroup);
+  plantWhole.appendChild(flowerAnchor);
+
+  // sparkles — more of them, and they twinkle continuously
+  const sparkleCount = Math.max(0, stage - 1);
+  const ring = 34 * sf + 16;
+  for (let i=0; i<sparkleCount + (stage===5? 3 : 0); i++){
+    const ang = (Math.PI*2 / (sparkleCount + (stage===5?3:0))) * i + (stage===5?0.4:0);
+    const dist = ring * (0.85 + (i%2)*0.35);
+    const sx = tipX + Math.cos(ang)*dist;
+    const sy = tipY + Math.sin(ang)*dist*0.8 - 6;
+    const size = stage === 5 ? 7 : 5;
+    const s = el("path", {
+      d:`M0 ${-size} L${size*0.28} ${-size*0.28} L${size} 0 L${size*0.28} ${size*0.28} L0 ${size} L${-size*0.28} ${size*0.28} L${-size} 0 L${-size*0.28} ${-size*0.28} Z`,
+      fill:"#D9B54A",
+      transform:`translate(${sx} ${sy})`
+    });
+    s.classList.add("sparkle");
+    s.style.opacity = 0;
+    s.style.animationDelay = `${1.5 + i*0.18}s`;
+    plantWhole.appendChild(s);
+    const revealDelay = 1.3 + i*0.1;
+    s.style.transition = `opacity .4s ease ${revealDelay}s`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ s.style.opacity = 1; }));
+  }
+
+  container.appendChild(svg);
+
+  // trigger entrance animations
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    stem.style.strokeDashoffset = 0;
+    flowerGroup.style.opacity = 1;
+    flowerGroup.style.transform = "scale(1) rotate(0deg)";
+    svg.querySelectorAll(".pop-el").forEach(p=>{
+      p.style.opacity = 1;
+      p.style.transform = p.dataset.final;
+    });
+  }));
+
+  // settle into a gentle idle sway once the growth animation is done
+  setTimeout(()=>{ plantWhole.classList.add("plant-sway"); }, 1700);
+}
+
+function buildFlower(g, plant, sf){
+  const r = Math.max(6, 30 * sf);
+  const shape = plant.shape;
+  let idx = 0;
+  const baseDelay = 0.95;
+  const step = 0.045;
+
+  if (shape === "daisy"){
+    const petals = plant.petals || 10;
+    const pr = r * 0.95;
+    for (let i=0; i<petals; i++){
+      const ang = (360/petals) * i;
+      const wrap = el("g", { transform:`rotate(${ang})` });
+      const petal = el("ellipse", { cx:0, cy:-pr*0.62, rx: pr*0.28, ry: pr*0.62, fill: plant.flower });
+      popIn(petal, baseDelay + (idx++)*step);
+      wrap.appendChild(petal);
+      g.appendChild(wrap);
+    }
+    const center = el("circle", { cx:0, cy:0, r:r*0.38, fill: plant.flower2 });
+    popIn(center, baseDelay + (idx++)*step);
+    g.appendChild(center);
+  }
+  else if (shape === "round"){
+    const n = 7;
+    for (let i=0; i<n; i++){
+      const ang = (Math.PI*2/n) * i;
+      const dist = r*0.42;
+      const c = el("circle", {
+        cx: Math.cos(ang)*dist, cy: Math.sin(ang)*dist - r*0.15,
+        r: r*0.42, fill: i % 2 === 0 ? plant.flower : plant.flower2
+      });
+      popIn(c, baseDelay + (idx++)*step);
+      g.appendChild(c);
+    }
+    const center = el("circle", { cx:0, cy:-r*0.15, r:r*0.4, fill: plant.flower });
+    popIn(center, baseDelay + (idx++)*step);
+    g.appendChild(center);
+  }
+  else if (shape === "bell"){
+    const petal = el("path", {
+      d:`M ${-r*0.55} ${-r*0.2} Q 0 ${-r*1.05} ${r*0.55} ${-r*0.2}
+         Q ${r*0.6} ${r*0.55} 0 ${r*0.75}
+         Q ${-r*0.6} ${r*0.55} ${-r*0.55} ${-r*0.2} Z`,
+      fill: plant.flower
+    });
+    popIn(petal, baseDelay + (idx++)*step);
+    g.appendChild(petal);
+    for (let i=-1;i<=1;i++){
+      const dot = el("circle", { cx:i*r*0.22, cy:r*0.55, r:r*0.06, fill: plant.flower2 });
+      popIn(dot, baseDelay + (idx++)*step);
+      g.appendChild(dot);
+    }
+  }
+  else if (shape === "star"){
+    const points = plant.points || 5;
+    let d = "";
+    for (let i=0; i<points*2; i++){
+      const ang = (Math.PI/points) * i - Math.PI/2;
+      const rad = i % 2 === 0 ? r : r*0.42;
+      const x = Math.cos(ang)*rad, y = Math.sin(ang)*rad;
+      d += (i===0? "M":"L") + ` ${x} ${y} `;
+    }
+    d += "Z";
+    const star = el("path", { d, fill: plant.flower });
+    popIn(star, baseDelay + (idx++)*step);
+    g.appendChild(star);
+    const center = el("circle", { cx:0, cy:0, r:r*0.28, fill: plant.flower2 });
+    popIn(center, baseDelay + (idx++)*step);
+    g.appendChild(center);
+  }
+  else if (shape === "spike"){
+    const segs = 5;
+    const segColor = plant.segColor || plant.flower;
+    for (let i=0; i<segs; i++){
+      const t = i/(segs-1);
+      const y = -r*1.3 + t*r*1.5;
+      const w = r*0.55*(1-t*0.35);
+      const a = el("ellipse", { cx:-w*0.6, cy:y, rx:w*0.42, ry:r*0.22, fill: i%2===0?plant.flower:segColor });
+      const b = el("ellipse", { cx:w*0.6, cy:y, rx:w*0.42, ry:r*0.22, fill: i%2===0?segColor:plant.flower });
+      popIn(a, baseDelay + (idx++)*step);
+      popIn(b, baseDelay + (idx++)*step);
+      g.appendChild(a);
+      g.appendChild(b);
+    }
+  }
+}
+
+function spawnConfetti(container, plant){
+  container.querySelectorAll(".confetti").forEach(n=>n.remove());
+  const colors = [plant.flower, plant.flower2, "#D9B54A"];
+  const count = 14;
+  for (let i=0; i<count; i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = `${4 + Math.random()*92}%`;
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = `${2.6 + Math.random()*1.8}s`;
+    c.style.animationDelay = `${1.1 + Math.random()*1.4}s`;
+    c.style.width = c.style.height = `${6 + Math.random()*6}px`;
+    container.appendChild(c);
+  }
+}
+
+/* ---------------- main flow ---------------- */
+
+const nameInput = document.getElementById("nameInput");
+const drawBtn = document.getElementById("drawBtn");
+const againBtn = document.getElementById("againBtn");
+const resultEl = document.getElementById("result");
+const hintText = document.getElementById("hintText");
+
+function runFortune(){
+  const raw = nameInput.value.trim();
+  if (!raw){
+    hintText.textContent = "お名前を入力してください。";
+    nameInput.focus();
+    return;
+  }
+  hintText.textContent = "";
+
+  const plant = PLANTS[pick(raw, "#plant", PLANTS.length)];
+  const level = LEVELS[randInt(LEVELS.length)];
+  const love = LOVE[randInt(LOVE.length)];
+  const work = WORK[randInt(WORK.length)];
+  const money = MONEY[randInt(MONEY.length)];
+
+  document.getElementById("plantName").textContent = plant.name;
+  document.getElementById("plantReading").textContent = plant.reading;
+  document.getElementById("levelLabel").textContent = level.label;
+  document.getElementById("plantKeyword").textContent = plant.keyword;
+  document.getElementById("overallText").textContent = `${plant.poem}${level.advice(plant.name)}`;
+  document.getElementById("loveText").textContent = love;
+  document.getElementById("workText").textContent = work;
+  document.getElementById("moneyText").textContent = money;
+  document.getElementById("luckySwatch").style.background = plant.luckyHex;
+  document.getElementById("luckyColorName").textContent = plant.luckyName;
+
+  const stageEl = document.getElementById("stage");
+  drawPlant(stageEl, plant, level.stage);
+
+  stageEl.classList.remove("reveal");
+  void stageEl.offsetWidth; // restart the reveal animation each time
+  stageEl.classList.add("reveal");
+
+  if (level.stage === 5){
+    spawnConfetti(stageEl, plant);
+  } else {
+    stageEl.querySelectorAll(".confetti").forEach(n=>n.remove());
+  }
+
+  resultEl.classList.add("show");
+  requestAnimationFrame(()=>{
+    resultEl.scrollIntoView({ behavior:"smooth", block:"start" });
+  });
+}
+
+drawBtn.addEventListener("click", ()=>{
+  drawBtn.classList.remove("btn-pop");
+  void drawBtn.offsetWidth;
+  drawBtn.classList.add("btn-pop");
+  runFortune();
+});
+nameInput.addEventListener("keydown", (e)=>{ if (e.key === "Enter") runFortune(); });
+againBtn.addEventListener("click", ()=>{
+  resultEl.classList.remove("show");
+  nameInput.value = "";
+  nameInput.focus();
+  window.scrollTo({ top:0, behavior:"smooth" });
+});
+</script>
+</body>
+</html>

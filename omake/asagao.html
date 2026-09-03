@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>植物観察メモ</title>
+</head>
+<body>
+
+<h1>植物観察メモ</h1>
+
+<p><b>アサガオ</b>を観察しました。</p>
+
+<ul>
+  <li>花の色：紫</li>
+  <li>葉の形：ハート形</li>
+  <li>観察場所：研究所の庭</li>
+</ul>
+
+<button onclick="showPhoto()">写真を見る</button>
+
+<br><br>
+
+<img id="photo" src="asagao.jpg" width="300" style="display:none;">
+
+<script>
+function showPhoto() {
+  document.getElementById("photo").style.display = "block";
+}
+</script>
+
+</body>
+</html>
